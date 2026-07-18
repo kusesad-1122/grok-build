@@ -79,3 +79,14 @@ AARCH64_APPLE_DARWIN_JEMALLOC_SYS_WITH_LG_PAGE = "14"
 AARCH64_UNKNOWN_LINUX_GNU_JEMALLOC_SYS_WITH_LG_PAGE = "16"
 AARCH64_UNKNOWN_LINUX_MUSL_JEMALLOC_SYS_WITH_LG_PAGE = "16"
 AARCH64_UNKNOWN_LINUX_MUSL_JEMALLOC_SYS_WITH_BACKGROUND_THREADS = "0"
+
+# ── Android 交叉编译目标(移植工程新增)────────────────────────────
+[target.aarch64-linux-android]
+linker = "/opt/android-sdk/ndk/27.2.12479018/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang"
+# 部分 -sys 依赖编译了 C++,需显式链接 NDK 的 C++ 运行时(libc++_shared)。
+# 运行时的 libc++_shared.so 随 APK 打包进 jniLibs/arm64-v8a。
+rustflags = ["-C", "force-unwind-tables=yes", "-C", "link-arg=-lc++_shared"]
+
+[target.armv7-linux-androideabi]
+linker = "/opt/android-sdk/ndk/27.2.12479018/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi24-clang"
+rustflags = ["-C", "force-unwind-tables=yes"]

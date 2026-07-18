@@ -65,11 +65,23 @@ pub fn detect_with_osc11_fallback() -> Option<SystemAppearance> {
 }
 
 /// Inner detection via desktop APIs only (no mock, no OSC 11).
+#[cfg(not(target_os = "android"))]
 fn detect_without_mock() -> Option<SystemAppearance> {
     match dark_light::detect() {
         Ok(dark_light::Mode::Dark) => Some(SystemAppearance::Dark),
         Ok(dark_light::Mode::Light) => Some(SystemAppearance::Light),
         // Mode::Unspecified or Err — no system preference detected
+        _ => None,
+    }
+}
+
+/// Android 移植:dark_light 在 android(无桌面外观 API)上 `detect()` 直接返回
+/// `Mode`(非 Result),这里按值匹配;系统外观交由 OSC 11 兜底探测。
+#[cfg(target_os = "android")]
+fn detect_without_mock() -> Option<SystemAppearance> {
+    match dark_light::detect() {
+        dark_light::Mode::Dark => Some(SystemAppearance::Dark),
+        dark_light::Mode::Light => Some(SystemAppearance::Light),
         _ => None,
     }
 }

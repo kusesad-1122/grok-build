@@ -400,3 +400,18 @@ uninlined_format_args = "allow"
 # into `format!("{}", param)`, which clippy flags as useless_format.
 # Suppressed until the upstream crate fixes its codegen (fixed in 0.7.16+).
 useless_format = "allow"
+
+# ── Android 移植补丁(grok2 手机移植工程)────────────────────────────
+# nono 0.53.0 的跨平台去重逻辑只覆盖 linux/macos,交叉编译到 android 时
+# `let key` 两条 cfg 分支都不命中导致 E0425。此处用本地补丁副本追加
+# `not(any(linux, macos))` 分支(android 的 landlock 后端本就不编译,enforce
+# 在移植 App 中为 no-op)。仅影响 android target,不改变桌面构建。
+[patch.crates-io]
+nono = { path = "third_party/android-patches/nono-0.53.0" }
+# waitpid-any 0.3.0:linux 分支(rustix pidfd,android 同样支持)未包含 android。
+waitpid-any = { path = "third_party/android-patches/waitpid-any-0.3.0" }
+# mid 4.0.0:机器 ID 的 linux(shell 读 machine-id)实现同样可用于 android。
+mid = { path = "third_party/android-patches/mid-4.0.0" }
+# arboard 3.6.1:上游无 android 后端(平台选择显式排除 android)。补丁副本新增
+# android 模块(进程内内存剪贴板,文本可回环,图片/文件降级)。
+arboard = { path = "third_party/android-patches/arboard-3.6.1" }
